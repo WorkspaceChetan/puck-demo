@@ -92,7 +92,7 @@ export const config: Config = {
         },
         options: {
           type: "array",
-          getItemSummary: (item) => item.label || `Add dropdown options`,
+          getItemSummary: (item) => item.label || "Add dropdown options",
           defaultItemProps: {
             label: "",
             value: "",
