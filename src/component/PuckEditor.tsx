@@ -12,6 +12,19 @@ interface TextFieldProps {
   placeholder: string;
 }
 
+interface RadioProps {
+  Label: string;
+  selected: string;
+  options: { label: string; value: string }[];
+  onChange: (event: string) => void;
+}
+
+interface SelectProps {
+  Label: string;
+  selected: string;
+  options: { label: string; value: string }[];
+}
+
 interface CheckboxProps {
   label: string;
   checked: boolean;
@@ -35,25 +48,12 @@ export const config: Config = {
       components: [
         "TextField",
         "RadioGroup",
-        "Dropdown",
         "Checkbox",
         "ImageUpload",
         "SubmitButton",
-        // "Example",
+        "Select",
       ],
     },
-    // layout: {
-    //   components: [
-    //     "Sidebar",
-    //     "FormContainer",
-    //     "TextField",
-    //     "RadioGroup",
-    //     "Dropdown",
-    //     "Checkbox",
-    //     "ImageUpload",
-    //     "SubmitButton",
-    //   ],
-    // },
   },
   components: {
     TextField: {
@@ -85,64 +85,22 @@ export const config: Config = {
         </div>
       ),
     },
-    RadioGroup: {
+    Select: {
       fields: {
         Label: {
           type: "text",
         },
-        Radio: {
-          type: "radio",
-          options: [
-            { label: "Water", value: "water" },
-            { label: "Orange juice", value: "orange-juice" },
-          ],
-        },
-      },
-      defaultProps: {
-        options: [
-          { label: "Water", value: "water" },
-          { label: "Orange juice", value: "orange-juice" },
-        ],
-        selected: "water",
-        Label: "Radio Title",
-      },
-      render: ({ Label, options, selected, onChange }: any) => (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-          }}
-        >
-          <label style={{ marginRight: "15px" }}>{Label}</label>
-          <div>
-            {options?.map((option: any) => (
-              <label key={option.value} style={{ marginRight: "15px" }}>
-                <input
-                  type="radio"
-                  name="drink"
-                  value={option.value}
-                  checked={selected === option.value}
-                  onChange={(e) => onChange(e.target.value)}
-                />
-                {option.label}
-              </label>
-            ))}
-          </div>
-        </div>
-      ),
-    },
-    Dropdown: {
-      fields: {
-        Label: {
-          type: "text",
-        },
-        Dropdown: {
-          type: "select",
-          options: [
-            { label: "USA", value: "usa" },
-            { label: "INDIA", value: "india" },
-          ],
+        options: {
+          type: "array",
+          getItemSummary: (item) => item.label || `Add dropdown options`,
+          defaultItemProps: {
+            label: "",
+            value: "",
+          },
+          arrayFields: {
+            label: { type: "text" },
+            value: { type: "text" },
+          },
         },
       },
       defaultProps: {
@@ -151,28 +109,93 @@ export const config: Config = {
           { label: "USA", value: "usa" },
           { label: "INDIA", value: "india" },
         ],
-        selected: "USA",
+        selected: "usa",
       },
-
-      render: ({ Label, options, selected }: any) => (
-        <div>
+      render: ({ Label, options, selected }: SelectProps) => {
+        return (
+          <div>
+            <label style={{ marginRight: "15px" }}>{Label}</label>
+            <select
+              defaultValue={selected}
+              style={{
+                padding: "10px",
+                width: "100%",
+                borderRadius: "5px",
+                backgroundColor: "#222",
+                color: "#fff",
+              }}
+            >
+              {options.map((option: any) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        );
+      },
+    },
+    RadioGroup: {
+      fields: {
+        Label: {
+          type: "text",
+        },
+        options: {
+          type: "array",
+          getItemSummary: (item) => item.label || "Add radio",
+          defaultItemProps: {
+            label: "",
+            value: "",
+          },
+          arrayFields: {
+            label: { type: "text" },
+            value: { type: "text" },
+          },
+        },
+      },
+      defaultProps: {
+        options: [
+          { label: "Water", value: "water" },
+          { label: "Orange juice", value: "orange-juice" },
+          { label: "Mango juice", value: "mango-juice" },
+        ],
+        selected: "water",
+        Label: "Radio Title",
+      },
+      render: ({ Label, options, selected, onChange }: RadioProps) => (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+          }}
+        >
           <label style={{ marginRight: "15px" }}>{Label}</label>
-          <select
-            defaultValue={selected}
+          <div
             style={{
-              padding: "10px",
-              width: "100%",
-              borderRadius: "5px",
-              backgroundColor: "#222",
-              color: "#fff",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: "5px",
             }}
           >
-            {options.map((option: any) => (
-              <option key={option.value} value={option.value}>
+            {options?.map((option: any) => (
+              <label
+                key={option.value}
+                style={{ marginRight: "15px", display: "flex", gap: "8px" }}
+              >
+                <input
+                  type="radio"
+                  name="drink"
+                  value={option.value}
+                  checked={selected === option.value}
+                  onChange={(e) => onChange(e.target.value)}
+                  style={{ padding: "15px" }}
+                />
                 {option.label}
-              </option>
+              </label>
             ))}
-          </select>
+          </div>
         </div>
       ),
     },
@@ -250,6 +273,7 @@ const initialData: Record<string, unknown> = {};
 // Function to handle form submission (save data)
 const save = (data: Record<string, unknown>) => {
   console.log("Form submitted with data:", data);
+  localStorage.setItem("puck-data", JSON.stringify(data));
 };
 
 // Main component
